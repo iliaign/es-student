@@ -35,6 +35,14 @@ bool handle_command(int command, bool led)
 }
 
 
+bool get_button_debounce(uint pin)
+{
+    bool state = gpio_get(pin);
+    sleep_ms(DEBOUNCE_MS);
+    return state && gpio_get(pin);
+}
+
+
 int main(void)
 {
     stdio_init_all();
@@ -69,7 +77,7 @@ int main(void)
 
 
 
-        
+
 
         int command = getchar_timeout_us(0);
 
