@@ -2,9 +2,19 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 
-const uint LED_PIN    = 25;
+const uint LED_PIN = 25;
 const uint BUTTON_PIN = 24;
 const uint DEBOUNCE_MS = 20;
+
+
+bool get_button_debounce(uint pin)
+{
+    bool pressed = !gpio_get(pin);
+
+    sleep_ms(DEBOUNCE_MS);
+
+    return pressed && !gpio_get(pin);
+}
 
 
 void set_led(bool on)
@@ -35,21 +45,16 @@ bool handle_command(int command, bool led)
 }
 
 
-bool get_button_debounce(uint pin)
-{
-    bool state = gpio_get(pin);
-    sleep_ms(DEBOUNCE_MS);
-    return state && gpio_get(pin);
-}
-
-
 int main(void)
 {
     stdio_init_all();
 
+    // LED
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
+    gpio_put(LED_PIN, 0);
 
+    // Кнопка
     gpio_init(BUTTON_PIN);
     gpio_set_dir(BUTTON_PIN, GPIO_IN);
     gpio_pull_up(BUTTON_PIN);
@@ -57,40 +62,33 @@ int main(void)
     bool led = false;
     bool prev_pressed = false;
 
-    while (true) {
-        bool raw = !gpio_get(BUTTON_PIN);  
+    while (true)
+    {
+        // -------------------------
+        // Кнопка
+        // -------------------------
 
-        if (raw) {
-            sleep_ms(DEBOUNCE_MS);
-            if (!gpio_get(BUTTON_PIN)) {    // подтверждение нажатия
-                if (!prev_pressed) {        // фронт нажатия
-                    led = !led;
-                    set_led(led);
-                }
-                prev_pressed = true;
-            }
-        } else {
-            prev_pressed = false;
+        bool pressed = get_button_debounce(BUTTON_PIN);
+
+        // Новое нажатие
+        if (pressed && !prev_pressed)
+        {
+            led = !led;
+            set_led(led);
         }
 
-        sleep_ms(5);
-
-
+        prev_pressed = pressed;
 
 
 
         int command = getchar_timeout_us(0);
 
-        if (command == PICO_ERROR_TIMEOUT)
+        if (command != PICO_ERROR_TIMEOUT)
         {
-            continue;
+            led = handle_command(command, led);
         }
 
-        led = handle_command(command, led);
 
-
-
-
-
+        sleep_ms(5);
     }
 }
