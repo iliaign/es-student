@@ -1,7 +1,9 @@
-#include <stdio.h>
+
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
+
 #include "led.h"
+#include "log.h"
 
 const uint BUTTON_PIN = 24;
 const uint DEBOUNCE_MS = 20;
@@ -25,21 +27,29 @@ void handle_command(int command)
     if (command == 'e')
     {
         led_set(true);
-        printf("led %s\n", led_is_on() ? "on" : "off");
+
+        LOG_INF("led %s\n",
+                led_is_on() ? "on" : "off");
     }
     else if (command == 'd')
     {
         led_set(false);
-        printf("led %s\n", led_is_on() ? "on" : "off");
+
+        LOG_INF("led %s\n",
+                led_is_on() ? "on" : "off");
+    }
+    else if (command == 'v')
+    {
+        log_version();
     }
     else
     {
-        printf("unknown command: %c\n", command);
+        LOG_ERR("unknown command: %c\n", command);
     }
 }
 
 
-int main()
+int main(void)
 {
     // Включаем стандартный ввод-вывод
     stdio_init_all();
@@ -72,8 +82,8 @@ int main()
             {
                 led_toggle();
 
-                printf("led %s\n",
-                       led_is_on() ? "on" : "off");
+                LOG_INF("led %s\n",
+                        led_is_on() ? "on" : "off");
             }
         }
 
@@ -85,6 +95,7 @@ int main()
 
         if (command != PICO_ERROR_TIMEOUT)
         {
+            LOG_DBG("got %c\n", command);
             handle_command(command);
         }
 

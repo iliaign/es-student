@@ -12,6 +12,7 @@ pico_sdk_init()
 add_executable(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/main.c
     ${CMAKE_CURRENT_SOURCE_DIR}/led.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/log.c
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -24,6 +25,7 @@ pico_set_linker_script(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/logging
 )
 
 pico_enable_stdio_usb(${PROJECT_NAME} 1)
