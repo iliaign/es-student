@@ -1,4 +1,6 @@
 #include "log.h"
+#include "device.h"
+
 
 void log_version(void)
 {
@@ -9,6 +11,7 @@ void log_version(void)
            __TIME__,
            LOG_LEVEL);
 }
+
 
 void log_prefix(const char *level, const char *function, int line)
 {
